@@ -78,9 +78,17 @@ def simple_drought_index(series: pd.Series) -> pd.Series:
     return drought_index
 
 
-def analyze(series: pd.Series, value_col: str = "reserva", output: Optional[str] = None):
+def analyze(series: pd.Series, value_col: str = "reserva", output: Optional[str] = None, lags: Optional[int] = None):
     # resample to daily if finer granularity; assume series index is datetime
     s = series.asfreq('D')
+
+    # determine automatic number of lags if not provided
+    n_obs = s.dropna().shape[0]
+    if lags is None:
+        # default: 10% of observations, at least 10, at most 365
+        lags = min(365, max(10, int(max(1, n_obs * 0.1))))
+    # ensure lags is not larger than available observations
+    lags = int(min(lags, max(1, n_obs - 1)))
 
     fig, axes = plt.subplots(4, 2, figsize=(14, 16))
 
@@ -120,12 +128,12 @@ def analyze(series: pd.Series, value_col: str = "reserva", output: Optional[str]
     axes[2, 0].set_title('Simple drought index (monthly z-score)')
 
     # 6. ACF
-    plot_acf(s.dropna(), ax=axes[2, 1], lags=60)
-    axes[2, 1].set_title('ACF (60 lags)')
+    plot_acf(s.dropna(), ax=axes[2, 1], lags=lags)
+    axes[2, 1].set_title(f'ACF ({lags} lags)')
 
     # 7. PACF
-    plot_pacf(s.dropna(), ax=axes[3, 0], lags=60, method='ywm')
-    axes[3, 0].set_title('PACF (60 lags)')
+    plot_pacf(s.dropna(), ax=axes[3, 0], lags=lags, method='ywm')
+    axes[3, 0].set_title(f'PACF ({lags} lags)')
 
     # 8. Stationarity test
     adf_res = adfuller(s.dropna())
@@ -152,6 +160,7 @@ def main(argv: list[str]):
     parser.add_argument("--start", default=None)
     parser.add_argument("--end", default=None)
     parser.add_argument("--output", default=None)
+    parser.add_argument("--lags", type=int, default=None, help="Number of lags for ACF/PACF (default: automatic based on series length)")
     args = parser.parse_args(argv)
 
     try:
@@ -173,7 +182,7 @@ def main(argv: list[str]):
     series = pd.to_numeric(sub[args.value], errors='coerce')
     series.index = sub.index
 
-    analyze(series, value_col=args.value, output=args.output)
+    analyze(series, value_col=args.value, output=args.output, lags=args.lags)
 
 
 if __name__ == "__main__":
