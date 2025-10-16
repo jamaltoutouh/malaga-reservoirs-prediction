@@ -5,7 +5,11 @@ numpy>=1.23.0
 seaborn>=0.12.0
 statsmodels>=0.14.0
 scipy>=1.9.0
+scikit-learn>=1.1.0
+
+# PyTorch must be installed per your platform/CUDA support. Example CPU install:
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
 # Notes:
 # - These versions are minimums; adjust as needed for your environment.
-# - Install with: pip install -r requirements.txt
+# - Install with: pip install -r requirements.txt (then install torch as indicated above)

@@ -89,6 +89,23 @@ You can run the same evaluation from the CLI without the notebook:
    python src/evaluate_statistical_models.py data/test.csv --value reserva --test-days 30 --output compare.png
    ```
 
+## GRU demo (PyTorch)
+A notebook demonstrating training and evaluation of a GRU predictor is available at `notebooks/demo_gru.ipynb`.
+
+This notebook shows a complete workflow: loading data, preparing sequences, training a GRU, plotting training/validation loss, and comparing forecasts against a hold-out test set.
+
+To run the notebook in Jupyter/Colab ensure PyTorch is installed appropriate to your platform. Example CPU install:
+
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+```
+
+Open the notebook and run cells or execute the equivalent script:
+
+```bash
+python src/gru_predictor.py data/test.csv --value reserva --test-days 30 --seq-len 30 --epochs 50 --output gru_compare.png --model-out gru_model.pth
+```
+
 ## CSV format
 CSV files are expected to come from InfluxDB with the second row containing column names, e.g.:
 
